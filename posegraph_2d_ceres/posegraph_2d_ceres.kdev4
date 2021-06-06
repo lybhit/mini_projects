@@ -1,0 +1,3 @@
+[Project]
+Name=posegraph_2d_ceres
+Manager=KDevCMakeManager
