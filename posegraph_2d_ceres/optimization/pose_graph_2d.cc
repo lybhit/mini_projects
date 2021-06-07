@@ -1,16 +1,4 @@
-#include <fstream>
-#include <iostream>
-#include <map>
-#include <string>
-#include <vector>
-
-#include "angle_local_parameterization.h"
-#include "ceres/ceres.h"
-#include "gflags/gflags.h"
-#include "glog/logging.h"
-#include "pose_graph_2d_error_term.h"
-#include "types.h"
-#include "keyframe/keyframe.h"
+#include "pose_graph_2d.h"
 
 DEFINE_string(input, "", "The pose graph definition filename in g2o format.");
 
@@ -24,6 +12,7 @@ void BuildOptimizationProblem(const std::vector<Constraint2d>& constraints,
                               ceres::Problem* problem) {
   CHECK(keyframes!= NULL);
   CHECK(problem != NULL);
+  std::cout << "constraints size = " << constraints.size() << std::endl;
   if (constraints.empty()) {
     LOG(INFO) << "No constraints, no problem to optimize.";
     return;
@@ -40,21 +29,23 @@ void BuildOptimizationProblem(const std::vector<Constraint2d>& constraints,
 
     std::map<int, KeyFrame>::iterator keyframe_begin_iter =
         keyframes->find(constraint.id_begin);
-    CHECK(keyframe_begin_iter != KeyFrames->end())
+    CHECK(keyframe_begin_iter != keyframes->end())
         << "keyframe with ID: " << constraint.id_begin << " not found.";
     std::map<int, KeyFrame>::iterator keyframe_end_iter =
         keyframes->find(constraint.id_end);
-    CHECK(keyframe_end_iter != KeyFrames->end())
+    CHECK(keyframe_end_iter != keyframes->end())
         << "keyframe with ID: " << constraint.id_end << " not found.";
 
     const Eigen::Matrix3d sqrt_information =
         constraint.information.llt().matrixL();
+        
+    std::cout << "sqrt_information = " << sqrt_information << std::endl;
     // Ceres will take ownership of the pointer.
     ceres::CostFunction* cost_function = PoseGraph2dErrorTerm::Create(
         constraint.x, constraint.y, constraint.yaw_radians, sqrt_information);
     problem->AddResidualBlock(
         cost_function, loss_function, &keyframe_begin_iter->second.pose_in_map(0),
-        &keyframe_begin_iter->pose_in_map(1), &keyframe_begin_iter->second.pose_in_map(2),
+        &keyframe_begin_iter->second.pose_in_map(1), &keyframe_begin_iter->second.pose_in_map(2),
         &keyframe_end_iter->second.pose_in_map(0), &keyframe_end_iter->second.pose_in_map(1),
         &keyframe_end_iter->second.pose_in_map(2));
 
@@ -63,7 +54,7 @@ void BuildOptimizationProblem(const std::vector<Constraint2d>& constraints,
     problem->SetParameterization(&keyframe_end_iter->second.pose_in_map(2),
                                 angle_local_parameterization);
 
-    if(&keyframe_begin_iter->second.match_ratio > 0.6)
+    if(keyframe_begin_iter->second.match_ratio > 0.6)
     {
         problem->SetParameterBlockConstant(&keyframe_begin_iter->second.pose_in_map(0));
         problem->SetParameterBlockConstant(&keyframe_begin_iter->second.pose_in_map(1));

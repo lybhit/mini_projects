@@ -8,8 +8,8 @@ struct KeyFrame
 {
     int id;
     float match_ratio;
-    Eigen::Vector3f pose_in_map;
-    Eigen::Vector3f pose_in_odom;
+    Eigen::Vector3d pose_in_map;
+    Eigen::Vector3d pose_in_odom;
     std::vector<Eigen::Vector3f> scan_cloud;
 };
 

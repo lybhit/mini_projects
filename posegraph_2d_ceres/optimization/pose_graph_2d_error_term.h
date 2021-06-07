@@ -2,6 +2,8 @@
 #define CERES_EXAMPLES_POSE_GRAPH_2D_POSE_GRAPH_2D_ERROR_TERM_H_
 
 #include "Eigen/Core"
+#include "ceres/ceres.h"
+#include "normalize_angle.h"
 
 namespace ceres {
 namespace examples {

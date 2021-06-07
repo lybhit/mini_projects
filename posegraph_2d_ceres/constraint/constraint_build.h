@@ -1,10 +1,18 @@
 #ifndef CONSTRAINT_BUILD_H
 #define CONSTRAINT_BUILD_H
 
-#include "KeyFrame/KeyFrame.h"
-#include "./types.h"
+#include "../keyframe/keyframe.h"
+#include "../types.h"
+#include "../optimization/pose_graph_2d_error_term.h"
+#include "../optimization/normalize_angle.h"
+
+#include <vector>
 
 #define CONTRAINT_STRIP 5
+
+
+namespace ceres{
+namespace examples{
 
 class ConstraintBuild{
   public:
@@ -14,7 +22,7 @@ class ConstraintBuild{
     ConstraintBuild(const ConstraintBuild&) = delete;
     ConstraintBuild& operator=(const ConstraintBuild&) = delete;
 
-    void computeConstraint(std::vector<KeyFrame> KeyFrames);
+    void computeConstraint(const std::vector<KeyFrame>& keyframes);
 
     const std::vector<Constraint2d>& getConstraints() const;
 
@@ -22,6 +30,9 @@ class ConstraintBuild{
   private:
     std::vector<Constraint2d> constraints_;
 
-
 };
+
+}// namespace examples 
+}// namespace ceres
+
 #endif
