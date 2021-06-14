@@ -1,2 +1,4 @@
 **build/
 **.zip
+**.vscode/
+**.kdev4
